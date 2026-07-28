@@ -27,4 +27,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNotFound(PlayerNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @ExceptionHandler(PlayerInBattleException.class)
+    public ResponseEntity<String> handleInBattle(PlayerInBattleException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(BattleNotFoundException.class)
+    public ResponseEntity<String> handleBattleNotFound(BattleNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBattleResultException.class)
+    public ResponseEntity<String> handleInvalidResult(InvalidBattleResultException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

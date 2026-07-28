@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.eloarena.exception.PlayerAlreadyInQueueException;
+import com.eloarena.exception.PlayerInBattleException;
 import com.eloarena.exception.PlayerNotFoundException;
 import com.eloarena.exception.PlayerNotInQueueException;
 import com.eloarena.model.Battle;
+import com.eloarena.model.BattleStatus;
 import com.eloarena.model.Player;
 import com.eloarena.repository.BattleRepository;
 import com.eloarena.repository.PlayerRepository;
@@ -29,15 +32,19 @@ public class MatchmakingService {
     }
 
     public void enqueue(Long playerId) {
+
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new PlayerNotFoundException(playerId));
+
+        battleRepository.findPendingBattleForPlayer(BattleStatus.PENDING, playerId).ifPresent(b -> {
+            throw new PlayerInBattleException(playerId);
+        });
+
         synchronized (queue) {
             boolean alreadyQueued = queue.stream().anyMatch(t -> t.playerId().equals(playerId));
             if (alreadyQueued) {
                 throw new PlayerAlreadyInQueueException(playerId);
             }
-
-            Player player = playerRepository.findById(playerId)
-                    .orElseThrow(() -> new PlayerNotFoundException(playerId));
-
             queue.add(new MatchTicket(playerId, player.getRating(), Instant.now()));
         }
     }
@@ -57,6 +64,7 @@ public class MatchmakingService {
         }
     }
 
+    @Scheduled(fixedDelay = 3000)
     public void matchmakingJob() {
         synchronized (queue) {
             for (int i = 0; i < queue.size(); i++) {
