@@ -12,4 +12,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAlreadyExists(PlayerAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+    @ExceptionHandler(PlayerAlreadyInQueueException.class)
+    public ResponseEntity<String> handleAlreadyInQueue(PlayerAlreadyInQueueException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PlayerNotInQueueException.class)
+    public ResponseEntity<String> handleNotInQueue(PlayerNotInQueueException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(PlayerNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }
